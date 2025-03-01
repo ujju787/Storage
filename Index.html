@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Local File Storage</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
+        input, button { margin: 10px; padding: 10px; }
+        .file-item { display: flex; justify-content: space-between; padding: 10px; border: 1px solid #ddd; margin: 5px 0; }
+    </style>
+</head>
+<body>
+    <h2>File Storage Without Backend</h2>
+    <input type="file" id="fileInput">
+    <button onclick="saveFile()">Upload & Save</button>
+    <h3>Stored Files</h3>
+    <div id="fileList"></div>
+
+    <script>
+        // Load stored files on page load
+        window.onload = function() {
+            displayFiles();
+        };
+
+        function saveFile() {
+            const fileInput = document.getElementById('fileInput');
+            if (fileInput.files.length === 0) {
+                alert("Please select a file.");
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(event) {
+                const fileData = event.target.result;
+                const fileName = file.name;
+
+                // Save to localStorage
+                localStorage.setItem(fileName, fileData);
+                displayFiles();
+            };
+
+            reader.readAsDataURL(file); // Convert to Base64 and store
+        }
+
+        function displayFiles() {
+            const fileList = document.getElementById('fileList');
+            fileList.innerHTML = "";
+
+            for (let i = 0; i < localStorage.length; i++) {
+                const fileName = localStorage.key(i);
+                const fileData = localStorage.getItem(fileName);
+
+                const fileItem = document.createElement("div");
+                fileItem.className = "file-item";
+                fileItem.innerHTML = `
+                    <a href="${fileData}" download="${fileName}">${fileName}</a>
+                    <button onclick="deleteFile('${fileName}')">Delete</button>
+                `;
+                fileList.appendChild(fileItem);
+            }
+        }
+
+        function deleteFile(fileName) {
+            localStorage.removeItem(fileName);
+            displayFiles();
+        }
+    </script>
+</body>
+</html>
